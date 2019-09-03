@@ -1,0 +1,22 @@
+ [flake8]
+ignore = E203, E266, E501, W503, F403, F401, E722, 
+max-line-length = 79
+max-complexity = 18
+exclude =
+    .git,
+    __pycache__,
+    src/ab-www/query2,
+    src/ab-www/gunicorn_ab_start,
+    src/ab-www/wsgi.py,
+    src/ab-www/manage.py,
+    src/ab-www/requirements.txt,
+	src/ab-www/report_engine/migrations/*,
+	src/ab-www/data_aggregator/migrations/*,
+    **/migrations,
+    scripts,
+    pyproject.toml,
+    db.sqlite3,
+    .pre-commit-config,
+    config,
+    **/local_client_id
+select = B,C,E,F,W,T4,B9

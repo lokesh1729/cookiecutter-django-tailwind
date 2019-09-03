@@ -23,6 +23,11 @@ CACHES = {
     }
 }
 
+# TEMPLATES
+# ------------------------------------------------------------------------------
+# https://docs.djangoproject.com/en/dev/ref/settings/#templates
+TEMPLATES[0]["OPTIONS"]["debug"] = DEBUG  # noqa F405
+
 # EMAIL
 # ------------------------------------------------------------------------------
 {% if cookiecutter.use_mailhog == 'y' and cookiecutter.use_docker == 'y' -%}
@@ -81,3 +86,76 @@ CELERY_TASK_EAGER_PROPAGATES = True
 {%- endif %}
 # Your stuff...
 # ------------------------------------------------------------------------------
+PROJECT_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+MAX_LOG_BYTES = 1024 * 1024 * 10
+
+PROJECT_NAME = os.path.basename(PROJECT_BASE_DIR)
+
+LOG_FILE_PATH = os.path.join(BASE_DIR, os.path.join("logs"))
+
+if not os.path.exists(LOG_FILE_PATH):
+    try:
+        os.makedirs(LOG_FILE_PATH)
+    except OSError:
+        pass
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)s : %(asctime)s : %(pathname)s : %(funcName)s : "
+            "lineno: %(lineno)d : %(message)s"
+        }
+    },
+    "handlers": {
+        "stdout": {"class": "logging.StreamHandler"},
+        "default": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_FILE_PATH, "%s.log" % PROJECT_NAME),
+            "formatter": "verbose",
+            "maxBytes": MAX_LOG_BYTES,
+        },
+        "django": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_FILE_PATH, "%s.log" % PROJECT_NAME),
+            "maxBytes": MAX_LOG_BYTES,
+        },
+        "django.server": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(
+                LOG_FILE_PATH, "%s_server.log" % PROJECT_NAME
+            ),
+        },
+        "database": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(
+                LOG_FILE_PATH, "%s_db.log" % PROJECT_NAME
+            ),
+            "maxBytes": MAX_LOG_BYTES,
+        },
+    },
+    "loggers": {
+        "": {
+            "handlers": ["default", "stdout"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django": {
+            "handlers": ["django"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["database"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.server": {
+            "handlers": ["django.server", "stdout"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}

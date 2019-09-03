@@ -1,0 +1,33 @@
+repos:
+-   repo: https://github.com/python/black
+    rev: stable
+    hooks:
+    - id: black
+      name: black
+      types: [python]
+      language_version: python3.6
+-   repo: https://github.com/pre-commit/mirrors-isort
+    rev: v4.3.20
+    hooks:
+    - id: isort
+      name: isort
+      types: [python]
+      language: python
+-   repo: local
+    hooks:
+    - id: pylint
+      name: pylint
+      language: system
+      types: [python]
+      entry: pylint --rcfile=.pylintrc --rcfile=.pylintrc --init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.join(os.path.dirname(find_pylintrc()), 'src', 'ab-www'))"
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: master
+    hooks:
+    - id: flake8
+      name: flake8
+      types: [python]
+      language: python
+exclude: ^(config|scripts|db\.sqlite3|\.git|\.flake8|\.gitignore|\.pylintrc|README|pyproject\.toml|\.coverage)$
+
+# reference : https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/
+# Home page : https://pre-commit.com
