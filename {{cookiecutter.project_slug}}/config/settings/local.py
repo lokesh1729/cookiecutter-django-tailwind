@@ -1,6 +1,7 @@
 from .base import *  # noqa
 from .base import env
 
+import environ
 import os
 
 # GENERAL
@@ -88,13 +89,15 @@ CELERY_TASK_EAGER_PROPAGATES = True
 {%- endif %}
 # Your stuff...
 # ------------------------------------------------------------------------------
-PROJECT_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT_DIR = (
+    environ.Path(__file__) - 3
+)
 
 MAX_LOG_BYTES = 1024 * 1024 * 10
 
-PROJECT_NAME = os.path.basename(PROJECT_BASE_DIR)
+PROJECT_NAME = os.path.basename(ROOT_DIR)
 
-LOG_FILE_PATH = os.path.join(BASE_DIR, os.path.join("logs"))
+LOG_FILE_PATH = os.path.join(ROOT_DIR, os.path.join("logs"))
 
 if not os.path.exists(LOG_FILE_PATH):
     try:
