@@ -20,6 +20,13 @@ Cookiecutter Django
     :target: https://github.com/ambv/black
     :alt: Code style: black
 
+Mandatory Environment Variables to be set
+
+* DATABASE_URL=postgres://username:password@127.0.0.1:5432/db_name
+* EMAIL_HOST=localhost
+* USE_DOCKER=no
+* CELERY_BROKER_URL=amqp://guest@localhost:5672
+
 Powered by Cookiecutter_, Cookiecutter Django is a framework for jumpstarting
 production-ready Django projects quickly.
 
