@@ -8,6 +8,9 @@ const pjson = require('./package.json')
 
 // Plugins
 const autoprefixer = require('autoprefixer')
+{% if cookiecutter.tailwind == 'y' %}
+const tailwindcss = require('tailwindcss');
+ {% endif %}
 const browserSync = require('browser-sync').create()
 {% if cookiecutter.custom_bootstrap_compilation == 'y' %}
 const concat = require('gulp-concat')
@@ -17,11 +20,19 @@ const imagemin = require('gulp-imagemin')
 const pixrem = require('pixrem')
 const plumber = require('gulp-plumber')
 const postcss = require('gulp-postcss')
+const purgecss = require("gulp-purgecss");
 const reload = browserSync.reload
 const rename = require('gulp-rename')
 const sass = require('gulp-sass')
 const spawn = require('child_process').spawn
 const uglify = require('gulp-uglify-es').default
+
+// Custom extractor for purgeCSS, to avoid stripping classes with `:` prefixes
+class TailwindExtractor {
+  static extract(content) {
+    return content.match(/[A-z0-9-:\/]+/g) || [];
+  }
+}
 
 // Relative paths function
 function pathsConfig(appName) {
@@ -44,6 +55,9 @@ function pathsConfig(appName) {
     fonts: `${this.app}/static/fonts`,
     images: `${this.app}/static/images`,
     js: `${this.app}/static/js`,
+    {% if cookiecutter.tailwind == 'y' %}
+     tailwind: `./tailwind.config.js`,
+    {% endif %}
   }
 }
 
@@ -56,6 +70,9 @@ var paths = pathsConfig()
 // Styles autoprefixing and minification
 function styles() {
   var processCss = [
+      {% if cookiecutter.tailwind == 'y' %}
+        tailwindcss(paths.tailwind),
+      {% endif %}
       autoprefixer(), // adds vendor prefixes
       pixrem(),       // add fallbacks for rem units
   ]
@@ -75,6 +92,17 @@ function styles() {
     }).on('error', sass.logError))
     .pipe(plumber()) // Checks for errors
     .pipe(postcss(processCss))
+    .pipe(
+        purgecss({
+          content: [`${paths.templates}/*.html`],
+          extractors: [
+            {
+              extractor: TailwindExtractor,
+              extensions: ["html", "js"]
+            }
+          ]
+        })
+     )
     .pipe(dest(paths.css))
     .pipe(rename({ suffix: '.min' }))
     .pipe(postcss(minifyCss)) // Minifies the result
@@ -110,6 +138,7 @@ function imgCompression() {
     .pipe(dest(paths.images))
 }
 
+{%- if cookiecutter.use_docker == 'n' %}
 // Run django server
 function runServer(cb) {
   var cmd = spawn('python', ['manage.py', 'runserver'], {stdio: 'inherit'})
@@ -118,6 +147,7 @@ function runServer(cb) {
     cb(code)
   })
 }
+{%- endif %}
 
 // Browser sync server for live reload
 function initBrowserSync() {
@@ -129,10 +159,10 @@ function initBrowserSync() {
       ], {
         // https://www.browsersync.io/docs/options/#option-proxy
         {%- if cookiecutter.use_docker == 'n' %}
-        proxy: 'localhost:8000'
+        proxy: 'localhost:8080'
         {% else %}
         proxy:  {
-          target: 'django:8000',
+          target: 'django:8080',
           proxyReq: [
             function(proxyReq, req) {
               // Assign proxy "host" header same as current request at Browsersync server
