@@ -42,6 +42,6 @@
   "use_heroku": "n",
   "use_travisci": "n",
   "keep_local_envs_in_vcs": "y",
-
+  "tailwind": "y",
   "debug": "n"
 }
