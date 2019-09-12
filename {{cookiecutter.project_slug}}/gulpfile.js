@@ -108,6 +108,36 @@ function styles() {
     .pipe(postcss(minifyCss)) // Minifies the result
     .pipe(dest(paths.css))
 }
+ 
+ function devStyles() {
+  var processCss = [
+      {% if cookiecutter.tailwind == 'y' %}
+        tailwindcss(paths.tailwind),
+      {% endif %}
+      autoprefixer(), // adds vendor prefixes
+      pixrem(),       // add fallbacks for rem units
+  ]
+
+  let minifyCss = [
+      cssnano({ preset: 'default' })   // minify result
+  ];
+
+  return src(`${paths.sass}/project.scss`)
+    .pipe(sass({
+      includePaths: [
+
+        paths.bootstrapSass,
+
+        paths.sass
+      ]
+    }).on('error', sass.logError))
+    .pipe(plumber()) // Checks for errors
+    .pipe(postcss(processCss))
+    .pipe(dest(paths.css))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(postcss(minifyCss)) // Minifies the result
+    .pipe(dest(paths.css))
+}
 
 // Javascript minification
 function scripts() {
@@ -180,7 +210,7 @@ function initBrowserSync() {
 
 // Watch
 function watchPaths() {
-  watch(`${paths.sass}/*.scss`, styles)
+  watch(`${paths.sass}/*.scss`, devStyles)
   watch(`${paths.templates}/**/*.html`).on("change", reload)
   watch([`${paths.js}/*.js`, `!${paths.js}/*.min.js`], scripts).on("change", reload)
 }
