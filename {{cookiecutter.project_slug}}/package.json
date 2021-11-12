@@ -23,7 +23,7 @@
     "gulp-uglify-es": "^1.0.4",
     "pixrem": "^5.0.0"
     {%- endif %}
-    {% if cookiecutter.use_tailwind == 'y' -%}
+    {% if cookiecutter.tailwind == 'y' -%}
     "autoprefixer": "^10.2.4",
     "node-sass": "^5.0.0",
     "postcss": "^8.2.6",

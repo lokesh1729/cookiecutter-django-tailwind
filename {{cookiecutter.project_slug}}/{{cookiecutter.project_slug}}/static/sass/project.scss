@@ -3,7 +3,7 @@
 @import "bootstrap";
 {% endif %}
 
-{% if cookiecutter.use_tailwind == 'y' %}
+{% if cookiecutter.tailwind == 'y' %}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
