@@ -70,11 +70,16 @@ def remove_heroku_files():
     for file_name in file_names:
         if (
             file_name == "requirements.txt"
-            and "{{ cookiecutter.use_travisci }}".lower() == "y"
+            and "{{ cookiecutter.ci_tool }}".lower() == "travis"
         ):
             # don't remove the file if we are using travisci but not using heroku
             continue
         os.remove(file_name)
+    remove_heroku_build_hooks()
+
+
+def remove_heroku_build_hooks():
+    shutil.rmtree("bin")
 
 
 def remove_gulp_files():
@@ -101,8 +106,25 @@ def remove_celery_files():
         os.remove(file_name)
 
 
+def remove_async_files():
+    file_names = [
+        os.path.join("config", "asgi.py"),
+        os.path.join("config", "websocket.py"),
+    ]
+    for file_name in file_names:
+        os.remove(file_name)
+
+
 def remove_dottravisyml_file():
     os.remove(".travis.yml")
+
+
+def remove_dotgitlabciyml_file():
+    os.remove(".gitlab-ci.yml")
+
+
+def remove_dotgithub_folder():
+    shutil.rmtree(".github")
 
 
 def append_to_project_gitignore(path):
@@ -279,6 +301,29 @@ def remove_node_dockerfile():
     shutil.rmtree(os.path.join("compose", "local", "node"))
 
 
+def remove_aws_dockerfile():
+    shutil.rmtree(os.path.join("compose", "production", "aws"))
+
+
+def remove_drf_starter_files():
+    os.remove(os.path.join("config", "api_router.py"))
+    shutil.rmtree(os.path.join("{{cookiecutter.project_slug}}", "users", "api"))
+    os.remove(
+        os.path.join(
+            "{{cookiecutter.project_slug}}", "users", "tests", "test_drf_urls.py"
+        )
+    )
+    os.remove(
+        os.path.join(
+            "{{cookiecutter.project_slug}}", "users", "tests", "test_drf_views.py"
+        )
+    )
+
+
+def remove_storages_module():
+    os.remove(os.path.join("{{cookiecutter.project_slug}}", "utils", "storages.py"))
+
+
 def main():
     debug = "{{ cookiecutter.debug }}".lower() == "y"
 
@@ -302,8 +347,16 @@ def main():
     else:
         remove_docker_files()
 
+    if (
+        "{{ cookiecutter.use_docker }}".lower() == "y"
+        and "{{ cookiecutter.cloud_provider}}".lower() != "aws"
+    ):
+        remove_aws_dockerfile()
+
     if "{{ cookiecutter.use_heroku }}".lower() == "n":
         remove_heroku_files()
+    elif "{{ cookiecutter.use_compressor }}".lower() == "n":
+        remove_heroku_build_hooks()
 
     if (
         "{{ cookiecutter.use_docker }}".lower() == "n"
@@ -333,14 +386,27 @@ def main():
             WARNING + "You chose not to use a cloud provider, "
             "media files won't be served in production." + TERMINATOR
         )
+        remove_storages_module()
 
     if "{{ cookiecutter.use_celery }}".lower() == "n":
         remove_celery_files()
         if "{{ cookiecutter.use_docker }}".lower() == "y":
             remove_celery_compose_dirs()
 
-    if "{{ cookiecutter.use_travisci }}".lower() == "n":
+    if "{{ cookiecutter.ci_tool }}".lower() != "travis":
         remove_dottravisyml_file()
+
+    if "{{ cookiecutter.ci_tool }}".lower() != "gitlab":
+        remove_dotgitlabciyml_file()
+
+    if "{{ cookiecutter.ci_tool }}".lower() != "github":
+        remove_dotgithub_folder()
+
+    if "{{ cookiecutter.use_drf }}".lower() == "n":
+        remove_drf_starter_files()
+
+    if "{{ cookiecutter.use_async }}".lower() == "n":
+        remove_async_files()
 
     print(SUCCESS + "Project initialized, keep up the good work!" + TERMINATOR)
 

@@ -18,11 +18,10 @@
   "use_pycharm": "n",
   "use_docker": "n",
   "postgresql_version": [
-    "11.3",
-    "10.8",
-    "9.6",
-    "9.5",
-    "9.4"
+    "13.2",
+    "12.6",
+    "11.11",
+    "10.16"
   ],
   "js_task_runner": [
     "None",
@@ -33,6 +32,19 @@
     "GCP",
     "None"
   ],
+  "mail_service": [
+    "Mailgun",
+    "Amazon SES",
+    "Mailjet",
+    "Mandrill",
+    "Postmark",
+    "Sendgrid",
+    "SendinBlue",
+    "SparkPost",
+    "Other SMTP"
+  ],
+  "use_async": "n",
+  "use_drf": "n",
   "custom_bootstrap_compilation": "n",
   "use_compressor": "n",
   "use_celery": "n",
@@ -40,7 +52,12 @@
   "use_sentry": "n",
   "use_whitenoise": "n",
   "use_heroku": "n",
-  "use_travisci": "n",
+  "ci_tool": [
+    "None",
+    "Travis",
+    "Gitlab",
+    "Github"
+  ],
   "keep_local_envs_in_vcs": "y",
   "tailwind": "y",
   "debug": "n"

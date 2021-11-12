@@ -40,14 +40,14 @@ function pathsConfig(appName) {
   const vendorsRoot = 'node_modules'
 
   return {
-    {% if cookiecutter.custom_bootstrap_compilation == 'y' %}
+    {%- if cookiecutter.custom_bootstrap_compilation == 'y' %}
     bootstrapSass: `${vendorsRoot}/bootstrap/scss`,
     vendorsJs: [
       `${vendorsRoot}/jquery/dist/jquery.slim.js`,
       `${vendorsRoot}/popper.js/dist/umd/popper.js`,
       `${vendorsRoot}/bootstrap/dist/js/bootstrap.js`,
     ],
-    {% endif %}
+    {%- endif %}
     app: this.app,
     templates: `${this.app}/templates`,
     css: `${this.app}/static/css`,
@@ -84,9 +84,9 @@ function styles() {
   return src(`${paths.sass}/project.scss`)
     .pipe(sass({
       includePaths: [
-        {% if cookiecutter.custom_bootstrap_compilation == 'y' %}
+        {%- if cookiecutter.custom_bootstrap_compilation == 'y' %}
         paths.bootstrapSass,
-        {% endif %}
+        {%- endif %}
         paths.sass
       ]
     }).on('error', sass.logError))
@@ -148,7 +148,7 @@ function scripts() {
     .pipe(dest(paths.js))
 }
 
-{% if cookiecutter.custom_bootstrap_compilation == 'y' %}
+{%- if cookiecutter.custom_bootstrap_compilation == 'y' %}
 // Vendor Javascript minification
 function vendorScripts() {
   return src(paths.vendorsJs)
@@ -159,7 +159,7 @@ function vendorScripts() {
     .pipe(rename({ suffix: '.min' }))
     .pipe(dest(paths.js))
 }
-{% endif %}
+{%- endif %}
 
 // Image compression
 function imgCompression() {
@@ -168,7 +168,18 @@ function imgCompression() {
     .pipe(dest(paths.images))
 }
 
-{%- if cookiecutter.use_docker == 'n' %}
+{%- if cookiecutter.use_async == 'y' -%}
+// Run django server
+function asyncRunServer() {
+  var cmd = spawn('gunicorn', [
+      'config.asgi', '-k', 'uvicorn.workers.UvicornWorker', '--reload'
+      ], {stdio: 'inherit'}
+  )
+  cmd.on('close', function(code) {
+    console.log('gunicorn exited with code ' + code)
+  })
+}
+{%- else %}
 // Run django server
 function runServer(cb) {
   var cmd = spawn('python', ['manage.py', 'runserver'], {stdio: 'inherit'})
@@ -189,8 +200,8 @@ function initBrowserSync() {
       ], {
         // https://www.browsersync.io/docs/options/#option-proxy
         {%- if cookiecutter.use_docker == 'n' %}
-        proxy: 'localhost:8080'
-        {% else %}
+        proxy: 'localhost:8000'
+        {%- else %}
         proxy:  {
           target: 'django:8080',
           proxyReq: [
@@ -210,23 +221,27 @@ function initBrowserSync() {
 
 // Watch
 function watchPaths() {
-  watch(`${paths.sass}/*.scss`, devStyles)
-  watch(`${paths.templates}/**/*.html`).on("change", reload)
-  watch([`${paths.js}/*.js`, `!${paths.js}/*.min.js`], scripts).on("change", reload)
+  watch(`${paths.sass}/*.scss`{% if cookiecutter.windows == 'y' %}, { usePolling: true }{% endif %}, styles)
+  watch(`${paths.templates}/**/*.html`{% if cookiecutter.windows == 'y' %}, { usePolling: true }{% endif %}).on("change", reload)
+  watch([`${paths.js}/*.js`, `!${paths.js}/*.min.js`]{% if cookiecutter.windows == 'y' %}, { usePolling: true }{% endif %}, scripts).on("change", reload)
 }
 
 // Generate all assets
 const generateAssets = parallel(
   styles,
   scripts,
-  {% if cookiecutter.custom_bootstrap_compilation == 'y' %}vendorScripts,{% endif %}
+  {%- if cookiecutter.custom_bootstrap_compilation == 'y' %}vendorScripts,{% endif %}
   imgCompression
 )
 
 // Set up dev environment
 const dev = parallel(
   {%- if cookiecutter.use_docker == 'n' %}
+  {%- if cookiecutter.use_async == 'y' %}
+  asyncRunServer,
+  {%- else %}
   runServer,
+  {%- endif %}
   {%- endif %}
   initBrowserSync,
   watchPaths

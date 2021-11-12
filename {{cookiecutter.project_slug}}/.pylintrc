@@ -1,47 +1,8 @@
 [MASTER]
-
-# A comma-separated list of package or module names from where C extensions may
-# be loaded. Extensions are loading into the active Python interpreter and may
-# run arbitrary code.
-extension-pkg-whitelist=
-
-# Add files or directories to the blacklist. They should be base names, not
-# paths.
-ignore=CVS,migrations
-# Add files or directories matching the regex patterns to the blacklist. The
-# regex matches against base names, not paths.
-ignore-patterns=__init__,query2,gunicorn_ab_start,wsgi,manage,^[0-9]+.*$
-
-# Python code to execute, usually for sys.path manipulation such as
-# pygtk.require().
-
-# Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
-# number of processors available to use.
-jobs=1
-
-# Control the amount of potential inferred values when inferring a single
-# object. This can help the performance when dealing with large functions or
-# complex, nested conditions.
-limit-inference-results=100
-
-# List of plugins (as comma separated values of python modules names) to load,
-# usually to register additional checkers.
-load-plugins=pylint_django,pylint_django.checkers.db_performance
-
-# Pickle collected data for later comparisons.
-persistent=yes
-
-# Specify a configuration file.
-#rcfile=
-
-# When enabled, pylint would attempt to guess common misconfiguration and emit
-# user-friendly hints instead of false-positive error messages.
-suggestion-mode=yes
-
-# Allow loading of arbitrary C extensions. Extensions are imported into the
-# active Python interpreter and may run arbitrary code.
-unsafe-load-any-extension=no
-
+load-plugins=pylint_django{% if cookiecutter.use_celery == "y" %}, pylint_celery{% endif %}
+django-settings-module=config.settings.base
+[FORMAT]
+max-line-length=120
 
 [MESSAGES CONTROL]
 

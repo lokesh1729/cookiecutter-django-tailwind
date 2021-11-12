@@ -9,23 +9,36 @@ Setting Up Development Environment
 
 Make sure to have the following on your host:
 
-* Python 3.6
+* Python 3.9
 * PostgreSQL_.
 * Redis_, if using Celery
+* Cookiecutter_
 
 First things first.
 
 #. Create a virtualenv: ::
 
-    $ python3.6 -m venv <virtual env path>
+    $ python3.9 -m venv <virtual env path>
 
 #. Activate the virtualenv you have just created: ::
 
     $ source <virtual env path>/bin/activate
 
+#. Install cookiecutter-django: ::
+
+    $ cookiecutter gh:cookiecutter/cookiecutter-django
+
 #. Install development requirements: ::
 
+    $ cd <what you have entered as the project_slug at setup stage>
     $ pip install -r requirements/local.txt
+    $ git init # A git repo is required for pre-commit to install
+    $ pre-commit install
+
+   .. note::
+
+       the `pre-commit` hook exists in the generated project as default.
+       For the details of `pre-commit`, follow the `pre-commit`_ site.
 
 #. Create a new PostgreSQL database using createdb_: ::
 
@@ -62,15 +75,21 @@ First things first.
 
     $ python manage.py migrate
 
-#. See the application being served through Django development server: ::
+#. If you're running synchronously, see the application being served through Django development server: ::
 
     $ python manage.py runserver 0.0.0.0:8000
 
+or if you're running asynchronously: ::
+
+    $ uvicorn config.asgi:application --host 0.0.0.0 --reload
+
 .. _PostgreSQL: https://www.postgresql.org/download/
 .. _Redis: https://redis.io/download
+.. _CookieCutter: https://github.com/cookiecutter/cookiecutter
 .. _createdb: https://www.postgresql.org/docs/current/static/app-createdb.html
-.. _initial PostgreSQL set up: http://suite.opengeo.org/docs/latest/dataadmin/pgGettingStarted/firstconnect.html
+.. _initial PostgreSQL set up: http://web.archive.org/web/20190303010033/http://suite.opengeo.org/docs/latest/dataadmin/pgGettingStarted/firstconnect.html
 .. _postgres documentation: https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html
+.. _pre-commit: https://pre-commit.com/
 .. _direnv: https://direnv.net/
 
 
@@ -126,6 +145,10 @@ when developing locally. If you have the appropriate setup on your local machine
 in ``config/settings/local.py``::
 
     CELERY_TASK_ALWAYS_EAGER = False
+
+To run Celery locally, make sure redis-server is installed (instructions are available at https://redis.io/topics/quickstart), run the server in one terminal with `redis-server`, and then start celery in another terminal with the following command::
+
+    celery -A config.celery_app worker --loglevel=info
 
 
 Sass Compilation & Live Reloading
