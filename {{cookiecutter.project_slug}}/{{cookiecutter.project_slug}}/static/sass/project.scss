@@ -3,6 +3,11 @@
 @import "bootstrap";
 {% endif %}
 
+{% if cookiecutter.use_tailwind == 'y' %}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+{% endif %}
 
 
 // project specific CSS goes here

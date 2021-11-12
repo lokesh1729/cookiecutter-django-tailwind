@@ -1,7 +1,8 @@
 {
   "name": "{{cookiecutter.project_slug}}",
   "version": "{{ cookiecutter.version }}",
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
     {% if cookiecutter.js_task_runner == 'Gulp' -%}
     {% if cookiecutter.custom_bootstrap_compilation == 'y' -%}
@@ -22,6 +23,12 @@
     "gulp-uglify-es": "^1.0.4",
     "pixrem": "^5.0.0"
     {%- endif %}
+    {% if cookiecutter.use_tailwind == 'y' -%}
+    "autoprefixer": "^10.2.4",
+    "node-sass": "^5.0.0",
+    "postcss": "^8.2.6",
+    "tailwindcss": "^2.0.3"
+    {% endif -%}
   },
   "engines": {
     "node": ">=8"
