@@ -28,10 +28,8 @@ const spawn = require('child_process').spawn
 const uglify = require('gulp-uglify-es').default
 
 // Custom extractor for purgeCSS, to avoid stripping classes with `:` prefixes
-class TailwindExtractor {
-  static extract(content) {
+const TailwindExtractor = (content) => {
     return content.match(/[A-z0-9-:\/]+/g) || [];
-  }
 }
 
 // Relative paths function
@@ -56,7 +54,7 @@ function pathsConfig(appName) {
     images: `${this.app}/static/images`,
     js: `${this.app}/static/js`,
     {% if cookiecutter.tailwind == 'y' %}
-     tailwind: `./tailwind.config.js`,
+    tailwind: `./tailwind.config.js`,
     {% endif %}
   }
 }
@@ -71,7 +69,7 @@ var paths = pathsConfig()
 function styles() {
   var processCss = [
       {% if cookiecutter.tailwind == 'y' %}
-        tailwindcss(paths.tailwind),
+      tailwindcss(paths.tailwind),
       {% endif %}
       autoprefixer(), // adds vendor prefixes
       pixrem(),       // add fallbacks for rem units
@@ -98,7 +96,7 @@ function styles() {
           extractors: [
             {
               extractor: TailwindExtractor,
-              extensions: ["html", "js"]
+              extensions: ["html", "js", "scss"]
             }
           ]
         })
@@ -112,7 +110,7 @@ function styles() {
  function devStyles() {
   var processCss = [
       {% if cookiecutter.tailwind == 'y' %}
-        tailwindcss(paths.tailwind),
+      tailwindcss(paths.tailwind),
       {% endif %}
       autoprefixer(), // adds vendor prefixes
       pixrem(),       // add fallbacks for rem units
@@ -125,9 +123,7 @@ function styles() {
   return src(`${paths.sass}/project.scss`)
     .pipe(sass({
       includePaths: [
-
         paths.bootstrapSass,
-
         paths.sass
       ]
     }).on('error', sass.logError))
