@@ -3,6 +3,10 @@ All enhancements and patches to Cookiecutter Django will be documented in this f
 
 <!-- GENERATOR_PLACEHOLDER -->
 
+## [2021-11-18]
+### Updated
+- Auto-update pre-commit hooks ([#4](https://github.com/lokesh1729/cookiecutter-django-tailwind/pull/4))
+
 ## [2021-11-11]
 ### Changed
 - Build all images on CI ([#3394](https://github.com/cookiecutter/cookiecutter-django/pull/3394))
